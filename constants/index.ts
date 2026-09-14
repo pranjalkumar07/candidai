@@ -98,7 +98,7 @@ export const mappings = {
 };
 
 export const interviewer: CreateAssistantDTO = {
-  name: "Interviewer",
+  name: "CandidAI Interviewer",
   firstMessage:
     "Hello! Thank you for taking the time to speak with me today. I'm excited to learn more about you and your experience.",
   transcriber: {
@@ -155,35 +155,21 @@ End the conversation on a polite and positive note.
   },
 };
 
-export const feedbackSchema = z.object({
-  totalScore: z.number(),
-  categoryScores: z.tuple([
-    z.object({
-      name: z.literal("Communication Skills"),
-      score: z.number(),
-      comment: z.string(),
-    }),
-    z.object({
-      name: z.literal("Technical Knowledge"),
-      score: z.number(),
-      comment: z.string(),
-    }),
-    z.object({
-      name: z.literal("Problem Solving"),
-      score: z.number(),
-      comment: z.string(),
-    }),
-    z.object({
-      name: z.literal("Cultural Fit"),
-      score: z.number(),
-      comment: z.string(),
-    }),
-    z.object({
-      name: z.literal("Confidence and Clarity"),
-      score: z.number(),
-      comment: z.string(),
-    }),
+export const feedbackCategorySchema = z.object({
+  name: z.enum([
+    "Communication Skills",
+    "Technical Knowledge",
+    "Problem Solving",
+    "Cultural Fit",
+    "Confidence and Clarity",
   ]),
+  score: z.number().min(0).max(100),
+  comment: z.string(),
+});
+
+export const feedbackSchema = z.object({
+  totalScore: z.number().min(0).max(100),
+  categoryScores: z.array(feedbackCategorySchema),
   strengths: z.array(z.string()),
   areasForImprovement: z.array(z.string()),
   finalAssessment: z.string(),

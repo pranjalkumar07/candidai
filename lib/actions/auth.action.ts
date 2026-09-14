@@ -49,11 +49,12 @@ export async function signUp(params: SignUpParams) {
       success: true,
       message: "Account created successfully. Please sign in.",
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error creating user:", error);
 
+    const firebaseError = error as { code?: string; message?: string };
     // Handle Firebase specific errors
-    if (error.code === "auth/email-already-exists") {
+    if (firebaseError?.code === "auth/email-already-exists") {
       return {
         success: false,
         message: "This email is already in use",
@@ -68,23 +69,19 @@ export async function signUp(params: SignUpParams) {
 }
 
 export async function signIn(params: SignInParams) {
-  const { email, idToken } = params;
+  const { idToken } = params;
 
   try {
-    const userRecord = await auth.getUserByEmail(email);
-    if (!userRecord)
-      return {
-        success: false,
-        message: "User does not exist. Create an account.",
-      };
-
     await setSessionCookie(idToken);
-  } catch (error: any) {
-    console.log("");
+    return { success: true };
+  } catch (error: unknown) {
+    console.error("Error signing in with session cookie:", error);
 
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to log into account. Please try again.";
     return {
       success: false,
-      message: "Failed to log into account. Please try again.",
+      message: errorMessage,
     };
   }
 }

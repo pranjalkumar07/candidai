@@ -1,24 +1,34 @@
-import Link from "next/link";
-import Image from "next/image";
 import { ReactNode } from "react";
 import { redirect } from "next/navigation";
-
-import { isAuthenticated } from "@/lib/actions/auth.action";
+import { getCurrentUser } from "@/lib/actions/auth.action";
+import Sidebar from "@/components/Sidebar";
+import TopHeader from "@/components/TopHeader";
+import BackgroundEffects from "@/components/BackgroundEffects";
 
 const Layout = async ({ children }: { children: ReactNode }) => {
-  const isUserAuthenticated = await isAuthenticated();
-  if (!isUserAuthenticated) redirect("/sign-in");
+  const user = await getCurrentUser();
+  if (!user?.id) redirect("/sign-in");
 
   return (
-    <div className="root-layout">
-      <nav>
-        <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.svg" alt="MockMate Logo" width={38} height={32} />
-          <h2 className="text-primary-100">PrepWise</h2>
-        </Link>
-      </nav>
+    <div className="min-h-screen flex bg-[#050816] text-[#F5F7FF] relative selection:bg-[#6D4AFF]/30 selection:text-white">
+      {/* 1. Global Atmospheric Background System */}
+      <BackgroundEffects />
 
-      {children}
+      {/* 2. Desktop Left Sidebar (~230px) */}
+      <div className="hidden md:flex shrink-0 sticky top-0 h-screen z-40">
+        <Sidebar />
+      </div>
+
+      {/* 3. Main Application Flow Area */}
+      <div className="flex-1 flex flex-col min-w-0 z-10 relative">
+        {/* Top Header (~60px) */}
+        <TopHeader userName={user.name} />
+
+        {/* Content Viewport Container (max-width: 1440px) */}
+        <main className="flex-1 candid-container py-6 sm:py-8">
+          {children}
+        </main>
+      </div>
     </div>
   );
 };

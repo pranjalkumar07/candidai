@@ -3,29 +3,42 @@ import Image from "next/image";
 import { cn, getTechLogos } from "@/lib/utils";
 
 const DisplayTechIcons = async ({ techStack }: TechIconProps) => {
-  const techIcons = await getTechLogos(techStack);
+  const techIcons = await getTechLogos(techStack || []);
+
+  if (!techIcons || techIcons.length === 0) {
+    return (
+      <span className="text-[11px] text-slate-500 font-medium">General Tech</span>
+    );
+  }
 
   return (
-    <div className="flex flex-row">
-      {techIcons.slice(0, 3).map(({ tech, url }, index) => (
+    <div className="flex items-center -space-x-2">
+      {techIcons.slice(0, 4).map(({ tech, url }, index) => (
         <div
-          key={tech}
+          key={`${tech}-${index}`}
           className={cn(
-            "relative group bg-dark-300 rounded-full p-2 flex flex-center",
-            index >= 1 && "-ml-3"
+            "relative group size-7 rounded-full bg-slate-800 border-2 border-slate-900 flex items-center justify-center p-1 transition-transform hover:scale-110 hover:z-10 shadow-sm"
           )}
         >
-          <span className="tech-tooltip">{tech}</span>
+          {/* Tooltip */}
+          <span className="absolute bottom-full mb-1.5 hidden group-hover:block px-2 py-0.5 text-[10px] font-semibold text-white bg-slate-800 border border-slate-700 rounded-md shadow-lg whitespace-nowrap z-20 pointer-events-none">
+            {tech}
+          </span>
 
           <Image
             src={url}
             alt={tech}
-            width={100}
-            height={100}
-            className="size-5"
+            width={24}
+            height={24}
+            className="size-4 object-contain"
           />
         </div>
       ))}
+      {techIcons.length > 4 && (
+        <div className="size-7 rounded-full bg-slate-800 border-2 border-slate-900 flex items-center justify-center text-[10px] font-bold text-slate-400">
+          +{techIcons.length - 4}
+        </div>
+      )}
     </div>
   );
 };

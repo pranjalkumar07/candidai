@@ -1,13 +1,25 @@
 "use server";
 
 import { generateObject } from "ai";
-import { google } from "@ai-sdk/google";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+
+const google = createGoogleGenerativeAI({
+  apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY,
+});
 
 import { db } from "@/firebase/admin";
 import { feedbackSchema } from "@/constants";
 
 export async function createFeedback(params: CreateFeedbackParams) {
   const { interviewId, userId, transcript, feedbackId } = params;
+
+  if (!interviewId || !userId) {
+    return { success: false };
+  }
+
+  if (!Array.isArray(transcript) || transcript.length === 0) {
+    return { success: false };
+  }
 
   try {
     const formattedTranscript = transcript
@@ -18,7 +30,7 @@ export async function createFeedback(params: CreateFeedbackParams) {
       .join("");
 
     const { object } = await generateObject({
-      model: google("gemini-2.0-flash-001", {
+      model: google("gemini-flash-latest", {
         structuredOutputs: false,
       }),
       schema: feedbackSchema,
@@ -27,12 +39,12 @@ export async function createFeedback(params: CreateFeedbackParams) {
         Transcript:
         ${formattedTranscript}
 
-        Please score the candidate from 0 to 100 in the following areas. Do not add categories other than the ones provided:
+        Please score the candidate from 0 to 100 in the following categories. Do not add categories other than the ones provided:
         - **Communication Skills**: Clarity, articulation, structured responses.
         - **Technical Knowledge**: Understanding of key concepts for the role.
-        - **Problem-Solving**: Ability to analyze problems and propose solutions.
-        - **Cultural & Role Fit**: Alignment with company values and job role.
-        - **Confidence & Clarity**: Confidence in responses, engagement, and clarity.
+        - **Problem Solving**: Ability to analyze problems and propose solutions.
+        - **Cultural Fit**: Alignment with company values and job role.
+        - **Confidence and Clarity**: Confidence in responses, engagement, and clarity.
         `,
       system:
         "You are a professional interviewer analyzing a mock interview. Your task is to evaluate the candidate based on structured categories",
@@ -67,9 +79,21 @@ export async function createFeedback(params: CreateFeedbackParams) {
 }
 
 export async function getInterviewById(id: string): Promise<Interview | null> {
-  const interview = await db.collection("interviews").doc(id).get();
+  if (!id) return null;
 
-  return interview.data() as Interview | null;
+  try {
+    const interview = await db.collection("interviews").doc(id).get();
+
+    if (!interview.exists) return null;
+
+    return {
+      id: interview.id,
+      ...interview.data(),
+    } as Interview;
+  } catch (error) {
+    console.error("Error getting interview by ID:", error);
+    return null;
+  }
 }
 
 export async function getFeedbackByInterviewId(
@@ -77,17 +101,27 @@ export async function getFeedbackByInterviewId(
 ): Promise<Feedback | null> {
   const { interviewId, userId } = params;
 
-  const querySnapshot = await db
-    .collection("feedback")
-    .where("interviewId", "==", interviewId)
-    .where("userId", "==", userId)
-    .limit(1)
-    .get();
+  if (!interviewId || !userId) return null;
 
-  if (querySnapshot.empty) return null;
+  try {
+    // Query by interviewId using Firestore single-field index (no composite index needed)
+    const querySnapshot = await db
+      .collection("feedback")
+      .where("interviewId", "==", interviewId)
+      .get();
 
-  const feedbackDoc = querySnapshot.docs[0];
-  return { id: feedbackDoc.id, ...feedbackDoc.data() } as Feedback;
+    if (querySnapshot.empty) return null;
+
+    const feedbackDoc = querySnapshot.docs.find(
+      (doc) => doc.data()?.userId === userId
+    );
+    if (!feedbackDoc) return null;
+
+    return { id: feedbackDoc.id, ...feedbackDoc.data() } as Feedback;
+  } catch (error) {
+    console.error("Error getting feedback by interview ID:", error);
+    return null;
+  }
 }
 
 export async function getLatestInterviews(
@@ -95,31 +129,78 @@ export async function getLatestInterviews(
 ): Promise<Interview[] | null> {
   const { userId, limit = 20 } = params;
 
-  const interviews = await db
-    .collection("interviews")
-    .orderBy("createdAt", "desc")
-    .where("finalized", "==", true)
-    .where("userId", "!=", userId)
-    .limit(limit)
-    .get();
+  try {
+    // Query ordered strictly by createdAt using Firestore single-field index (no composite index needed)
+    // Filter finalized and userId in memory
+    const snapshot = await db
+      .collection("interviews")
+      .orderBy("createdAt", "desc")
+      .limit(limit + 50)
+      .get();
 
-  return interviews.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as Interview[];
+    const interviews = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Interview[];
+
+    return interviews
+      .filter((interview) => interview.finalized && (!userId || interview.userId !== userId))
+      .slice(0, limit);
+  } catch (error) {
+    console.error("Error getting latest interviews:", error);
+    return [];
+  }
 }
 
 export async function getInterviewsByUserId(
   userId: string
 ): Promise<Interview[] | null> {
-  const interviews = await db
-    .collection("interviews")
-    .where("userId", "==", userId)
-    .orderBy("createdAt", "desc")
-    .get();
+  if (!userId) return [];
 
-  return interviews.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  })) as Interview[];
+  try {
+    // Query by userId using Firestore single-field index (no composite index needed)
+    // Sort in memory by createdAt descending
+    const snapshot = await db
+      .collection("interviews")
+      .where("userId", "==", userId)
+      .get();
+
+    const interviews = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Interview[];
+
+    return interviews.sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  } catch (error) {
+    console.error("Error getting interviews by user ID:", error);
+    return [];
+  }
 }
+
+export async function getFeedbacksByUserId(
+  userId: string
+): Promise<Feedback[]> {
+  if (!userId) return [];
+
+  try {
+    const snapshot = await db
+      .collection("feedback")
+      .where("userId", "==", userId)
+      .get();
+
+    const feedbacks = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as Feedback[];
+
+    return feedbacks.sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  } catch (error) {
+    console.error("Error getting feedbacks by user ID:", error);
+    return [];
+  }
+}
+
