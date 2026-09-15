@@ -53,7 +53,7 @@ const FeedbackPage = async ({ params }: RouteParams) => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3.5 self-start sm:self-auto">
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3.5 self-start sm:self-auto">
           <div className="flex items-center gap-1.5 text-xs text-[#69748D] px-3.5 py-2 rounded-lg bg-[#0B1224] border border-[rgba(110,120,180,0.22)]">
             <Calendar className="size-3.5 text-[#845CFF]" />
             <span className="text-[#CBD5E1]">{formattedDate}</span>
@@ -201,18 +201,18 @@ const FeedbackPage = async ({ params }: RouteParams) => {
           )}
 
           {/* 6. Action Controls */}
-          <div className="pt-4 border-t border-[rgba(255,255,255,0.06)] flex flex-wrap items-center justify-between gap-4">
+          <div className="pt-4 border-t border-[rgba(255,255,255,0.06)] flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
             <Link
               href="/"
-              className="btn-secondary text-xs font-semibold h-10 px-5 rounded-lg"
+              className="btn-secondary text-xs font-semibold h-10 px-5 rounded-lg justify-center text-center"
             >
               <span>Back to Dashboard</span>
             </Link>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
               <Link
                 href={`/interview/${id}`}
-                className="inline-flex items-center gap-2 h-10 px-5 text-xs font-semibold text-white bg-gradient-to-r from-[#6D4AFF] to-[#4F46E5] hover:from-[#7B5BFF] hover:to-[#5B54F0] rounded-lg shadow-[0_4px_16px_rgba(109,74,255,0.3)] hover:shadow-[0_4px_24px_rgba(109,74,255,0.45)] transition-all cursor-pointer"
+                className="inline-flex items-center justify-center gap-2 h-10 px-5 text-xs font-semibold text-white bg-gradient-to-r from-[#6D4AFF] to-[#4F46E5] hover:from-[#7B5BFF] hover:to-[#5B54F0] rounded-lg shadow-[0_4px_16px_rgba(109,74,255,0.3)] hover:shadow-[0_4px_24px_rgba(109,74,255,0.45)] transition-all cursor-pointer"
               >
                 <RotateCcw className="size-3.5" />
                 <span>Practice again</span>
@@ -220,7 +220,7 @@ const FeedbackPage = async ({ params }: RouteParams) => {
 
               <Link
                 href="/interview"
-                className="btn-secondary text-xs font-semibold h-10 px-5 rounded-lg flex items-center gap-1.5"
+                className="btn-secondary text-xs font-semibold h-10 px-5 rounded-lg flex items-center justify-center gap-1.5"
               >
                 <span>New interview</span>
                 <ArrowRight className="size-3.5" />

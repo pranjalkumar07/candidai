@@ -124,6 +124,8 @@ export default function CreateInterviewForm({
     }
 
     setIsGenerating(true);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 35000);
 
     try {
       const response = await fetch("/api/vapi/generate", {
@@ -137,8 +139,10 @@ export default function CreateInterviewForm({
           amount: questionCount,
           userid: userId,
         }),
+        signal: controller.signal,
       });
 
+      clearTimeout(timeoutId);
       const data = await response.json();
 
       if (!response.ok || !data.success || !data.interviewId) {
@@ -148,8 +152,13 @@ export default function CreateInterviewForm({
       toast.success("Interview session created. Redirecting to room...");
       router.push(`/interview/${data.interviewId}`);
     } catch (error: unknown) {
+      clearTimeout(timeoutId);
       const err = error as Error;
-      toast.error(err.message || "An error occurred while generating interview.");
+      if (err.name === "AbortError") {
+        toast.error("Generation timed out. Please check your network connection and try again.");
+      } else {
+        toast.error(err.message || "An error occurred while generating interview.");
+      }
       setIsGenerating(false);
     }
   };
@@ -427,7 +436,7 @@ export default function CreateInterviewForm({
                 </div>
               </div>
 
-              <div className="grid grid-cols-4 gap-2.5">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
                 {QUESTION_COUNTS.map((count) => (
                   <button
                     key={count}

@@ -8,6 +8,7 @@ import {
   Layers,
   Code2,
   Zap,
+  X,
 } from "lucide-react";
 import CandidAILogo from "./CandidAILogo";
 
@@ -39,14 +40,25 @@ export default function Sidebar({ onCloseMobile, className = "" }: SidebarProps)
 
   return (
     <aside
-      className={`w-[230px] h-screen flex flex-col justify-between bg-[#080D1C]/90 backdrop-blur-xl border-r border-[rgba(110,120,180,0.18)] select-none shrink-0 z-40 transition-all duration-300 ${className}`}
+      className={`w-[240px] h-screen flex flex-col justify-between bg-[#080D1C] md:bg-[#080D1C]/90 backdrop-blur-xl border-r border-[rgba(110,120,180,0.18)] select-none shrink-0 z-40 transition-all duration-300 overflow-y-auto ${className}`}
     >
       {/* Top Branding Section */}
       <div>
-        <div className="h-[64px] flex items-center px-5 border-b border-[rgba(110,120,180,0.15)]">
+        <div className="h-[64px] flex items-center justify-between px-5 border-b border-[rgba(110,120,180,0.15)]">
           <Link href="/" onClick={onCloseMobile} className="flex items-center">
-            <CandidAILogo size={34} />
+            <CandidAILogo size={32} />
           </Link>
+
+          {onCloseMobile && (
+            <button
+              type="button"
+              onClick={onCloseMobile}
+              className="md:hidden size-8 rounded-lg bg-[#0B1224] border border-[rgba(110,120,180,0.22)] flex items-center justify-center text-[#A7B0C5] hover:text-[#F5F7FF] transition-colors cursor-pointer"
+              title="Close navigation"
+            >
+              <X className="size-4" />
+            </button>
+          )}
         </div>
 
         {/* Navigation Section */}

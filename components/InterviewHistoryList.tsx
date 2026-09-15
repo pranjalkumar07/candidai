@@ -67,13 +67,13 @@ export default function InterviewHistoryList({
         </div>
 
         {/* Filter Controls */}
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Type Filter */}
-          <div className="relative">
+          <div className="relative flex-1 sm:flex-none min-w-[120px]">
             <select
               value={typeFilter}
               onChange={(e) => setTypeFilter(e.target.value)}
-              className="appearance-none bg-[#0B1224] border border-[rgba(110,120,180,0.22)] text-[#F5F7FF] text-xs rounded-[8px] pl-3.5 pr-8 py-2 outline-none cursor-pointer focus:border-[#6D4AFF] transition-colors"
+              className="w-full sm:w-auto appearance-none bg-[#0B1224] border border-[rgba(110,120,180,0.22)] text-[#F5F7FF] text-xs rounded-[8px] pl-3.5 pr-8 py-2 outline-none cursor-pointer focus:border-[#6D4AFF] transition-colors"
             >
               <option value="All">All types</option>
               <option value="Technical">Technical</option>
@@ -84,13 +84,13 @@ export default function InterviewHistoryList({
           </div>
 
           {/* Sort Filter */}
-          <div className="relative">
+          <div className="relative flex-1 sm:flex-none min-w-[120px]">
             <select
               value={sortBy}
               onChange={(e) =>
                 setSortBy(e.target.value as "newest" | "oldest" | "score")
               }
-              className="appearance-none bg-[#0B1224] border border-[rgba(110,120,180,0.22)] text-[#F5F7FF] text-xs rounded-[8px] pl-3.5 pr-8 py-2 outline-none cursor-pointer focus:border-[#6D4AFF] transition-colors"
+              className="w-full sm:w-auto appearance-none bg-[#0B1224] border border-[rgba(110,120,180,0.22)] text-[#F5F7FF] text-xs rounded-[8px] pl-3.5 pr-8 py-2 outline-none cursor-pointer focus:border-[#6D4AFF] transition-colors"
             >
               <option value="newest">Newest first</option>
               <option value="oldest">Oldest first</option>
@@ -181,12 +181,13 @@ export default function InterviewHistoryList({
                   </div>
 
                   {/* Action */}
-                  <div className="sm:col-span-2 flex justify-end">
+                  <div className="sm:col-span-2 flex justify-end pt-1 sm:pt-0">
                     <Link
                       href={targetHref}
-                      className="size-8 rounded-[7px] bg-[#0B1224] group-hover:bg-[#6D4AFF] group-hover:text-white text-[#A7B0C5] border border-[rgba(110,120,180,0.22)] group-hover:border-[#6D4AFF] flex items-center justify-center transition-all cursor-pointer shadow-xs"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 sm:size-8 sm:p-0 rounded-[7px] bg-[#0B1224] group-hover:bg-[#6D4AFF] group-hover:text-white text-[#A7B0C5] border border-[rgba(110,120,180,0.22)] group-hover:border-[#6D4AFF] sm:justify-center text-xs font-semibold transition-all cursor-pointer shadow-xs"
                       title={isEvaluated ? "View Evaluation" : "Start Interview"}
                     >
+                      <span className="sm:hidden">{isEvaluated ? "View report" : "Start"}</span>
                       <ArrowRight className="size-3.5 group-hover:translate-x-0.5 transition-transform" />
                     </Link>
                   </div>

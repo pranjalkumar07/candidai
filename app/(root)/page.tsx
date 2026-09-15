@@ -211,10 +211,10 @@ export default async function Home() {
               Practice a realistic interview based on your target role, skills and calibrated experience level.
             </p>
 
-            <div className="flex flex-wrap items-center gap-3.5 pt-2">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-2">
               <Link
                 href={nextHref}
-                className="btn-primary"
+                className="btn-primary w-full sm:w-auto text-center justify-center"
               >
                 <span>Start interview</span>
                 <ArrowRight className="size-4" />
@@ -222,7 +222,7 @@ export default async function Home() {
 
               <Link
                 href="/interviews"
-                className="btn-secondary"
+                className="btn-secondary w-full sm:w-auto text-center justify-center"
               >
                 <span>View interview history →</span>
               </Link>

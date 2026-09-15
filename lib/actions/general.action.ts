@@ -30,7 +30,7 @@ export async function createFeedback(params: CreateFeedbackParams) {
       .join("");
 
     const { object } = await generateObject({
-      model: google("gemini-flash-latest", {
+      model: google("gemini-1.5-flash", {
         structuredOutputs: false,
       }),
       schema: feedbackSchema,

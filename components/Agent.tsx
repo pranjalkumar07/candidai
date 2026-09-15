@@ -378,12 +378,12 @@ const Agent = ({
       </div>
 
       {/* Bottom Controls Dock */}
-      <div className="surface-glass px-5 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div className="surface-glass p-3.5 sm:px-5 sm:py-3.5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
         {/* Left: Transcript Toggle */}
         <button
           type="button"
           onClick={() => setShowTranscript(!showTranscript)}
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-[#8F9BB3] hover:text-[#F5F7FF] transition-colors cursor-pointer"
+          className="inline-flex items-center justify-center sm:justify-start gap-1.5 text-xs font-medium text-[#8F9BB3] hover:text-[#F5F7FF] transition-colors cursor-pointer py-1"
         >
           <MessageSquare className="size-3.5 text-[#845CFF]" />
           <span>{showTranscript ? "Hide transcript" : "Show transcript"}</span>
@@ -391,9 +391,9 @@ const Agent = ({
         </button>
 
         {/* Center/Right: Action Buttons */}
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center justify-center sm:justify-end gap-2 sm:gap-3">
           {isSubmittingFeedback ? (
-            <div className="flex items-center gap-2 text-xs font-semibold text-[#845CFF] px-4 py-2 rounded-lg bg-[#0B1224] border border-[#6D4AFF]/30 shadow-[0_0_12px_rgba(109,74,255,0.2)]">
+            <div className="flex items-center gap-2 text-xs font-semibold text-[#845CFF] px-4 py-2 rounded-lg bg-[#0B1224] border border-[#6D4AFF]/30 shadow-[0_0_12px_rgba(109,74,255,0.2)] w-full sm:w-auto justify-center">
               <Loader2 className="size-3.5 animate-spin text-[#845CFF]" />
               <span>Saving evaluation...</span>
             </div>
@@ -402,7 +402,7 @@ const Agent = ({
               type="button"
               onClick={handleCall}
               disabled={callStatus === CallStatus.CONNECTING}
-              className="inline-flex items-center gap-2 h-10 px-6 text-xs font-semibold text-white bg-gradient-to-r from-[#6D4AFF] to-[#4F46E5] hover:from-[#7B5BFF] hover:to-[#5B54F0] rounded-lg shadow-[0_4px_20px_rgba(109,74,255,0.35)] hover:shadow-[0_4px_28px_rgba(109,74,255,0.5)] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+              className="inline-flex items-center justify-center gap-2 h-10 px-6 text-xs font-semibold text-white bg-gradient-to-r from-[#6D4AFF] to-[#4F46E5] hover:from-[#7B5BFF] hover:to-[#5B54F0] rounded-lg shadow-[0_4px_20px_rgba(109,74,255,0.35)] hover:shadow-[0_4px_28px_rgba(109,74,255,0.5)] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed w-full sm:w-auto"
             >
               <Mic className="size-4" />
               <span>
@@ -420,7 +420,7 @@ const Agent = ({
                 type="button"
                 onClick={toggleMute}
                 className={cn(
-                  "size-9 rounded-lg border flex items-center justify-center transition-all cursor-pointer",
+                  "size-9 rounded-lg border flex items-center justify-center transition-all cursor-pointer shrink-0",
                   isMuted
                     ? "bg-[#F5B942]/15 border-[#F5B942]/30 text-[#F5B942] shadow-[0_0_12px_rgba(245,185,66,0.2)]"
                     : "bg-[#0B1224] border-[rgba(110,120,180,0.22)] text-[#8F9BB3] hover:text-[#F5F7FF] hover:border-[rgba(110,120,180,0.4)]"
@@ -435,7 +435,7 @@ const Agent = ({
                 type="button"
                 onClick={nextQuestion}
                 disabled={currentQuestionIndex >= totalQuestions - 1}
-                className="btn-secondary h-9 px-3 text-xs rounded-lg disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                className="btn-secondary h-9 px-3 text-xs rounded-lg disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex-1 sm:flex-none justify-center"
               >
                 <span>Next question</span>
                 <ChevronRight className="size-3.5" />
@@ -445,7 +445,7 @@ const Agent = ({
               <button
                 type="button"
                 onClick={handleDisconnect}
-                className="inline-flex items-center gap-1.5 h-9 px-4 text-xs font-semibold text-white bg-[#EF4444] hover:bg-[#DC2626] rounded-lg transition-colors cursor-pointer shadow-[0_2px_12px_rgba(239,68,68,0.3)]"
+                className="inline-flex items-center justify-center gap-1.5 h-9 px-3.5 sm:px-4 text-xs font-semibold text-white bg-[#EF4444] hover:bg-[#DC2626] rounded-lg transition-colors cursor-pointer shadow-[0_2px_12px_rgba(239,68,68,0.3)] flex-1 sm:flex-none"
               >
                 <PhoneOff className="size-3.5" />
                 <span>End interview</span>

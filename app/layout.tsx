@@ -1,8 +1,11 @@
+import { Suspense } from "react";
 import { Toaster } from "sonner";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 
 import "./globals.css";
+import BfcacheHandler from "@/components/BfcacheHandler";
+import NavigationProgress from "@/components/NavigationProgress";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -29,6 +32,10 @@ export default function RootLayout({
         className={`${inter.className} antialiased bg-[#07090D] text-[#F8FAFC] min-h-screen selection:bg-[#7652FF]/30 selection:text-white`}
         suppressHydrationWarning
       >
+        <BfcacheHandler />
+        <Suspense fallback={null}>
+          <NavigationProgress />
+        </Suspense>
         {children}
         <Toaster
           richColors
@@ -41,3 +48,4 @@ export default function RootLayout({
     </html>
   );
 }
+

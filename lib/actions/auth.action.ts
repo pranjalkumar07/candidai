@@ -1,5 +1,6 @@
 "use server";
 
+import { cache } from "react";
 import { auth, db } from "@/firebase/admin";
 import { cookies } from "next/headers";
 
@@ -93,37 +94,45 @@ export async function signOut() {
   cookieStore.delete("session");
 }
 
-// Get current user from session cookie
-export async function getCurrentUser(): Promise<User | null> {
+// Get current user from session cookie with per-request memoization and fast local JWT validation
+export const getCurrentUser = cache(async (): Promise<User | null> => {
   const cookieStore = await cookies();
 
   const sessionCookie = cookieStore.get("session")?.value;
   if (!sessionCookie) return null;
 
   try {
-    const decodedClaims = await auth.verifySessionCookie(sessionCookie, true);
+    // Validate the session cookie cryptographically using local in-memory keys (checkRevoked: false).
+    // This removes 500-1500ms network roundtrip to Google servers on every render.
+    const decodedClaims = await auth.verifySessionCookie(sessionCookie, false);
 
-    // get user info from db
+    // Fetch user profile from Firestore
     const userRecord = await db
       .collection("users")
       .doc(decodedClaims.uid)
       .get();
-    if (!userRecord.exists) return null;
+
+    if (!userRecord.exists) {
+      return {
+        id: decodedClaims.uid,
+        name: decodedClaims.name || decodedClaims.email?.split("@")[0] || "Candidate",
+        email: decodedClaims.email || "",
+      } as User;
+    }
 
     return {
       ...userRecord.data(),
       id: userRecord.id,
     } as User;
   } catch (error) {
-    console.log(error);
-
-    // Invalid or expired session
+    console.error("Error verifying user session:", error);
     return null;
   }
-}
+});
 
-// Check if user is authenticated
-export async function isAuthenticated() {
+// Check if user is authenticated (memoized per-request)
+export const isAuthenticated = cache(async () => {
   const user = await getCurrentUser();
   return !!user;
-}
+});
+

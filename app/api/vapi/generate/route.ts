@@ -27,7 +27,7 @@ export async function POST(request: Request) {
 
     try {
       const { object } = await generateObject({
-        model: google("gemini-flash-latest"),
+        model: google("gemini-1.5-flash"),
         schema: z.object({
           questions: questionArraySchema,
         }),
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
     } catch (genObjError) {
       console.warn("generateObject failed, falling back to generateText with sanitization:", genObjError);
       const { text: rawText } = await generateText({
-        model: google("gemini-flash-latest"),
+        model: google("gemini-1.5-flash"),
         prompt: `Prepare ${amount} interview questions for a ${level} ${role} with tech stack: ${techstack}. Focus: ${type}.
           The questions are going to be read by a voice assistant so do not use "/" or "*" or any other special characters.
           Return ONLY a valid JSON array of strings, for example:
