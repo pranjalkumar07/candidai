@@ -1,17 +1,29 @@
 "use client";
 
 import React from "react";
-import { UserCheck, ShieldCheck } from "lucide-react";
+import { UserCheck, ShieldCheck, Sparkles } from "lucide-react";
 
 interface Hero3DVisualProps {
   role?: string;
   level?: string;
+  isOnboarding?: boolean;
+  techstack?: string[];
 }
 
 export default function Hero3DVisual({
-  role = "Full Stack Engineer",
-  level = "Mid-level",
+  role,
+  level,
+  isOnboarding = false,
+  techstack = [],
 }: Hero3DVisualProps) {
+  const displayRole = isOnboarding ? "Target Role" : role || "Custom Role";
+  const displayLevel = isOnboarding ? "Calibrated Level" : level || "All Levels";
+  const displayTags = isOnboarding
+    ? ["Voice AI", "STAR Evaluator"]
+    : techstack.length > 0
+    ? techstack.slice(0, 2)
+    : ["Technical", "Behavioral"];
+
   return (
     <div className="relative w-full max-w-[320px] h-[220px] flex items-center justify-center select-none perspective-[1000px]">
       {/* Ambient Radial Glow Behind 3D Card */}
@@ -36,17 +48,17 @@ export default function Hero3DVisual({
             </div>
             <div>
               <span className="text-[11px] font-bold text-[#F5F7FF] block leading-tight">
-                AI Candidate
+                {isOnboarding ? "New Candidate" : "AI Candidate"}
               </span>
               <span className="text-[9px] text-[#69748D] block">
-                Telemetry Active
+                {isOnboarding ? "Setup Pending" : "Telemetry Active"}
               </span>
             </div>
           </div>
 
-          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#22C55E]/10 border border-[#22C55E]/30 text-[9px] font-semibold text-[#22C55E]">
-            <span className="size-1 rounded-full bg-[#22C55E] animate-pulse" />
-            Calibrated
+          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#845CFF]/10 border border-[#845CFF]/30 text-[9px] font-semibold text-[#845CFF]">
+            {isOnboarding ? <Sparkles className="size-2.5 text-[#845CFF]" /> : <span className="size-1 rounded-full bg-[#22C55E] animate-pulse" />}
+            {isOnboarding ? "Personalized" : "Calibrated"}
           </span>
         </div>
 
@@ -54,25 +66,27 @@ export default function Hero3DVisual({
         <div className="py-2.5 space-y-1.5">
           <div className="flex items-center justify-between text-[11px]">
             <span className="text-[#A7B0C5]">Target Focus:</span>
-            <span className="font-semibold text-[#F5F7FF] truncate max-w-[130px]">{role}</span>
+            <span className="font-semibold text-[#F5F7FF] truncate max-w-[130px]">{displayRole}</span>
           </div>
 
           <div className="flex items-center justify-between text-[11px]">
             <span className="text-[#A7B0C5]">Calibration:</span>
-            <span className="font-semibold text-[#845CFF]">{level}</span>
+            <span className="font-semibold text-[#845CFF]">{displayLevel}</span>
           </div>
         </div>
 
-        {/* Floating Mini Tech Tags */}
+        {/* Mini Tech / Capability Tags */}
         <div className="pt-2 border-t border-[rgba(110,120,180,0.15)] flex items-center gap-1.5">
-          <span className="px-2 py-0.5 rounded-[5px] bg-[#050816]/70 border border-[rgba(110,120,180,0.18)] text-[9px] text-[#A7B0C5]">
-            React 19
-          </span>
-          <span className="px-2 py-0.5 rounded-[5px] bg-[#050816]/70 border border-[rgba(110,120,180,0.18)] text-[9px] text-[#A7B0C5]">
-            Node.js
-          </span>
+          {displayTags.map((tag) => (
+            <span
+              key={tag}
+              className="px-2 py-0.5 rounded-[5px] bg-[#050816]/70 border border-[rgba(110,120,180,0.18)] text-[9px] text-[#A7B0C5]"
+            >
+              {tag}
+            </span>
+          ))}
           <span className="px-2 py-0.5 rounded-[5px] bg-[#6D4AFF]/15 border border-[#6D4AFF]/30 text-[9px] text-[#845CFF] font-medium ml-auto">
-            92% Match
+            {isOnboarding ? "Voice Ready" : "Session Active"}
           </span>
         </div>
       </div>
@@ -90,3 +104,4 @@ export default function Hero3DVisual({
     </div>
   );
 }
+

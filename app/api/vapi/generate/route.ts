@@ -8,20 +8,29 @@ import { z } from "zod";
 
 import { db } from "@/firebase/admin";
 import { getRandomInterviewCover } from "@/lib/utils";
+import { getCurrentUser } from "@/lib/actions/auth.action";
 
 const questionArraySchema = z.array(z.string().min(1));
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { type = "Mixed", role = "Software Engineer", level = "Mid-level", techstack = "", amount = 5, userid } = body || {};
-
-    if (!userid) {
+    const user = await getCurrentUser();
+    if (!user?.id) {
       return Response.json(
-        { success: false, message: "Missing required field: userid" },
-        { status: 400 }
+        { success: false, message: "Unauthorized. Please sign in." },
+        { status: 401 }
       );
     }
+
+    const body = await request.json();
+    const {
+      type = "Mixed",
+      role = "Software Engineer",
+      level = "Mid-level",
+      techstack = "",
+      amount = 5,
+      duration = 30,
+    } = body || {};
 
     let parsedQuestions: string[] = [];
 
@@ -31,13 +40,17 @@ export async function POST(request: Request) {
         schema: z.object({
           questions: questionArraySchema,
         }),
-        prompt: `Prepare questions for a job interview.
-          The job role is ${role}.
-          The job experience level is ${level}.
-          The tech stack used in the job is: ${techstack}.
-          The focus between behavioural and technical questions should lean towards: ${type}.
-          The amount of questions required is: ${amount}.
-          The questions are going to be read by a voice assistant so do not use "/" or "*" or any other special characters which might break the voice assistant.
+        prompt: `Prepare high-quality, realistic mock interview questions for CandidAI.
+          Role: ${role}.
+          Experience Level: ${level}.
+          Tech Stack / Focus: ${techstack}.
+          Interview Mode: ${type}.
+          Number of Questions: ${amount}.
+          Calibration Guidelines:
+          - For Junior: Focus on core fundamentals, basic debugging, and clean explanations.
+          - For Mid-level: Focus on architectural decisions, performance, practical implementation, and trade-offs.
+          - For Senior / Lead: Focus on distributed systems, scaling, resilience, leadership, and complex edge cases.
+          - The questions will be spoken aloud by a voice assistant: do NOT use slashes, asterisks, markdown, or awkward notation that sounds unnatural when spoken.
         `,
       });
       parsedQuestions = object.questions;
@@ -52,7 +65,6 @@ export async function POST(request: Request) {
         `,
       });
 
-      // Safely strip any markdown code blocks or trailing backticks
       const cleaned = rawText.replace(/```json\n?|\n?```/g, "").trim();
       const rawParsed = JSON.parse(cleaned);
       parsedQuestions = questionArraySchema.parse(rawParsed);
@@ -70,8 +82,9 @@ export async function POST(request: Request) {
       level,
       techstack: techstackArray,
       questions: parsedQuestions,
-      userId: userid,
-      finalized: true,
+      userId: user.id,
+      finalized: false,
+      duration: typeof duration === "number" ? duration : 30,
       coverImage: getRandomInterviewCover(),
       createdAt: new Date().toISOString(),
     };

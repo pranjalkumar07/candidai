@@ -155,14 +155,21 @@ End the conversation on a polite and positive note.
   },
 };
 
+export const questionEvaluationSchema = z.object({
+  question: z.string(),
+  candidateAnswer: z.string(),
+  score: z.number().min(0).max(100),
+  whatWasCorrect: z.string(),
+  whatWasMissing: z.string(),
+  whatWasIncorrect: z.string(),
+  whyItMatters: z.string(),
+  howToImprove: z.string(),
+  idealAnswer: z.string(),
+  followUpQuestion: z.string(),
+});
+
 export const feedbackCategorySchema = z.object({
-  name: z.enum([
-    "Communication Skills",
-    "Technical Knowledge",
-    "Problem Solving",
-    "Cultural Fit",
-    "Confidence and Clarity",
-  ]),
+  name: z.string(),
   score: z.number().min(0).max(100),
   comment: z.string(),
 });
@@ -173,7 +180,81 @@ export const feedbackSchema = z.object({
   strengths: z.array(z.string()),
   areasForImprovement: z.array(z.string()),
   finalAssessment: z.string(),
+  hiringSummary: z.string().optional(),
+  criticalWeaknesses: z.array(z.string()).optional(),
+  technicalGaps: z.array(z.string()).optional(),
+  communicationGaps: z.array(z.string()).optional(),
+  struggledQuestions: z.array(z.string()).optional(),
+  strongQuestions: z.array(z.string()).optional(),
+  improvementAreas: z.array(z.string()).optional(),
+  recommendedTopics: z.array(z.string()).optional(),
+  difficultyAssessment: z.string().optional(),
+  nextInterviewRecommendation: z.string().optional(),
+  questionEvaluations: z.array(questionEvaluationSchema).optional(),
 });
+
+export const createInterviewerAssistant = ({
+  candidateName = "Candidate",
+  role = "Software Engineer",
+  level = "Mid-level",
+  interviewMode = "Technical",
+  questions = [],
+}: {
+  candidateName?: string;
+  role?: string;
+  level?: string;
+  interviewMode?: string;
+  questions?: string[];
+}): CreateAssistantDTO => {
+  const formattedQuestions = questions.length > 0
+    ? questions.map((q, idx) => `${idx + 1}. ${q}`).join("\n")
+    : "1. Could you walk me through your background and relevant technical experience?";
+
+  return {
+    name: "CandidAI Interviewer",
+    firstMessage: `Hello ${candidateName}! Welcome to your ${level} ${role} ${interviewMode} interview. I will guide you through our questions today. Take your time to think and explain your answers clearly. Whenever you are ready, let me know and we will get started.`,
+    transcriber: {
+      provider: "deepgram",
+      model: "nova-2",
+      language: "en",
+    },
+    voice: {
+      provider: "11labs",
+      voiceId: "sarah",
+      stability: 0.4,
+      similarityBoost: 0.8,
+      speed: 0.9,
+      style: 0.5,
+      useSpeakerBoost: true,
+    },
+    model: {
+      provider: "openai",
+      model: "gpt-4",
+      messages: [
+        {
+          role: "system",
+          content: `You are a professional, seasoned technical interviewer conducting a realistic real-time mock interview for CandidAI.
+Target Role: ${role}
+Candidate Experience Level: ${level}
+Interview Focus Mode: ${interviewMode}
+Candidate Name: ${candidateName}
+
+Interview Questions to Cover:
+${formattedQuestions}
+
+Professional Conduct Guidelines:
+1. Ask ONE question at a time. Never dump multiple questions together.
+2. Listen attentively to the candidate's response.
+3. If an answer is vague, shallow, or misses key context, ask a brief, relevant technical follow-up before moving to the next prepared question.
+4. Keep your responses concise and conversational (1-3 sentences max). This is a voice interview, so never produce long monologues.
+5. Do NOT give away solutions, hints, or tell the candidate whether they got it right or wrong during the interview. Remain neutral, encouraging, and professional.
+6. Progress methodically through the question list.
+7. When all questions have been addressed or time is called, conclude politely by thanking ${candidateName} and letting them know their comprehensive evaluation will be compiled immediately.`,
+        },
+      ],
+    },
+  };
+};
 
 export const interviewCovers = [
   "/adobe.png",
@@ -188,29 +269,4 @@ export const interviewCovers = [
   "/telegram.png",
   "/tiktok.png",
   "/yahoo.png",
-];
-
-export const dummyInterviews: Interview[] = [
-  {
-    id: "1",
-    userId: "user1",
-    role: "Frontend Developer",
-    type: "Technical",
-    techstack: ["React", "TypeScript", "Next.js", "Tailwind CSS"],
-    level: "Junior",
-    questions: ["What is React?"],
-    finalized: false,
-    createdAt: "2024-03-15T10:00:00Z",
-  },
-  {
-    id: "2",
-    userId: "user1",
-    role: "Full Stack Developer",
-    type: "Mixed",
-    techstack: ["Node.js", "Express", "MongoDB", "React"],
-    level: "Senior",
-    questions: ["What is Node.js?"],
-    finalized: false,
-    createdAt: "2024-03-14T15:30:00Z",
-  },
 ];

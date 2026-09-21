@@ -18,6 +18,9 @@ const InterviewDetails = async ({ params }: RouteParams) => {
   const interview = await getInterviewById(id);
   if (!interview) redirect("/");
 
+  // Data isolation: ensure candidate can only access their own interview session
+  if (interview.userId !== user.id) redirect("/interviews");
+
   const feedback = await getFeedbackByInterviewId({
     interviewId: id,
     userId: user.id,
@@ -41,6 +44,12 @@ const InterviewDetails = async ({ params }: RouteParams) => {
               <span>Interview Session</span>
               <span>•</span>
               <span className="capitalize">{interview.type || "Technical"}</span>
+              {interview.level && (
+                <>
+                  <span>•</span>
+                  <span className="capitalize">{interview.level}</span>
+                </>
+              )}
             </div>
             <h1 className="text-xl sm:text-2xl font-bold text-[#F5F7FF] capitalize mt-0.5">
               {interview.role}
@@ -67,6 +76,7 @@ const InterviewDetails = async ({ params }: RouteParams) => {
         questions={interview.questions}
         feedbackId={feedback?.id}
         role={interview.role}
+        level={interview.level}
         interviewMode={interview.type}
       />
     </div>

@@ -6,13 +6,9 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
 
-    // Interviews: authenticated users can read finalized interviews or their own interviews;
-    // only the owner can create, update, or delete their interviews
+    // Interviews: strictly scoped to the owner of the interview
     match /interviews/{interviewId} {
-      allow read: if request.auth != null && (
-        resource.data.userId == request.auth.uid ||
-        resource.data.finalized == true
-      );
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
       allow update, delete: if request.auth != null && resource.data.userId == request.auth.uid;
     }

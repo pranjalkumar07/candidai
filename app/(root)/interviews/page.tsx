@@ -40,6 +40,8 @@ export default async function InterviewsPage() {
       createdAt: i.createdAt,
       score: fb?.totalScore ?? null,
       feedbackId: fb?.id ?? null,
+      durationSeconds: fb?.durationSeconds ?? i.durationSeconds ?? null,
+      configuredDuration: i.duration ?? null,
     };
   });
 

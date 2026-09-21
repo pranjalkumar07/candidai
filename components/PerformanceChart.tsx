@@ -25,10 +25,40 @@ export default function PerformanceChart({ data }: PerformanceChartProps) {
 
   if (!data || data.length === 0) {
     return (
-      <div className="h-[200px] flex flex-col items-center justify-center text-center p-6 border border-dashed border-[rgba(110,120,180,0.22)] rounded-[12px] bg-[rgba(11,18,36,0.5)]">
-        <p className="text-xs text-[#A7B0C5] max-w-xs">
-          Complete your next interview to unlock your live performance trajectory.
-        </p>
+      <div className="flex flex-col items-center justify-center text-center p-6 sm:p-8 border border-dashed border-[rgba(110,120,180,0.22)] rounded-[12px] bg-[rgba(11,18,36,0.5)] gap-4 my-auto min-h-[220px]">
+        <div className="flex flex-col gap-1 max-w-md">
+          <h4 className="text-sm font-bold text-[#F5F7FF]">
+            Your performance journey starts here.
+          </h4>
+          <p className="text-xs text-[#8F9BB3] mt-0.5">
+            Complete your first interview to unlock:
+          </p>
+          <ul className="text-xs text-[#A7B0C5] text-left space-y-1 mx-auto pt-1 font-medium">
+            <li className="flex items-center gap-2">
+              <span className="size-1.5 rounded-full bg-[#845CFF]" />
+              Score trends
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="size-1.5 rounded-full bg-[#845CFF]" />
+              Skill breakdown
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="size-1.5 rounded-full bg-[#845CFF]" />
+              Interview history
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="size-1.5 rounded-full bg-[#845CFF]" />
+              Improvement tracking
+            </li>
+          </ul>
+        </div>
+
+        <a
+          href="/interview"
+          className="btn-primary text-xs h-9 px-4 inline-flex items-center gap-1.5 shadow-sm mt-1"
+        >
+          <span>Start first interview →</span>
+        </a>
       </div>
     );
   }

@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import Link from "next/link";
 import dayjs from "dayjs";
 import { Search, ArrowRight, Play, CheckCircle2, ChevronDown, Layers, Clock } from "lucide-react";
+import { formatInterviewDuration } from "@/lib/utils";
 
 interface HistoryItem {
   id: string;
@@ -13,6 +14,8 @@ interface HistoryItem {
   createdAt: string;
   score?: number | null;
   feedbackId?: string | null;
+  durationSeconds?: number | null;
+  configuredDuration?: number | null;
 }
 
 interface InterviewHistoryListProps {
@@ -175,9 +178,14 @@ export default function InterviewHistoryList({
                   </div>
 
                   {/* Duration */}
-                  <div className="sm:col-span-2 text-xs text-[#69748D] flex items-center gap-1.5">
-                    <Clock className="size-3 text-[#69748D]" />
-                    <span>~15 min</span>
+                  <div className="sm:col-span-2 text-xs text-[#69748D] flex items-center gap-1.5 min-w-0">
+                    <Clock className="size-3 text-[#69748D] shrink-0" />
+                    <span className="truncate">
+                      {formatInterviewDuration({
+                        durationSeconds: item.durationSeconds,
+                        configuredDuration: item.configuredDuration,
+                      })}
+                    </span>
                   </div>
 
                   {/* Action */}
@@ -199,17 +207,21 @@ export default function InterviewHistoryList({
       ) : (
         <div className="surface-glass p-12 text-center flex flex-col items-center justify-center gap-3">
           <Layers className="size-6 text-[#69748D]" />
-          <p className="text-sm font-semibold text-[#F5F7FF]">Your interview history starts here.</p>
-          <p className="text-xs text-[#69748D] max-w-xs">
+          <p className="text-sm font-semibold text-[#F5F7FF]">
+            {searchQuery || typeFilter !== "All"
+              ? "No matching interviews found."
+              : "No interviews yet."}
+          </p>
+          <p className="text-xs text-[#8F9BB3] max-w-xs">
             {searchQuery || typeFilter !== "All"
               ? "Try adjusting your search query or filters to find your interview sessions."
-              : "You haven't completed or scheduled any interviews yet."}
+              : "Your completed interviews will appear here."}
           </p>
           <Link
             href="/interview"
-            className="btn-primary text-xs h-[38px] px-4 mt-2"
+            className="btn-primary text-xs h-[38px] px-4 mt-2 inline-flex items-center gap-1.5"
           >
-            Start your first interview
+            <span>Create your first interview →</span>
           </Link>
         </div>
       )}

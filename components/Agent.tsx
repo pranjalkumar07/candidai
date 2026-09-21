@@ -17,7 +17,7 @@ import {
 
 import { cn } from "@/lib/utils";
 import { vapi } from "@/lib/vapi.sdk";
-import { interviewer } from "@/constants";
+import { createInterviewerAssistant } from "@/constants";
 import { createFeedback } from "@/lib/actions/general.action";
 
 enum CallStatus {
@@ -34,6 +34,7 @@ interface SavedMessage {
 
 interface ExtendedAgentProps extends AgentProps {
   role?: string;
+  level?: string;
   interviewMode?: string;
 }
 
@@ -45,6 +46,7 @@ const Agent = ({
   type,
   questions = [],
   role = "Software Engineer",
+  level = "Mid-level",
   interviewMode = "Technical",
 }: ExtendedAgentProps) => {
   const router = useRouter();
@@ -58,6 +60,7 @@ const Agent = ({
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
 
   const feedbackSubmittedRef = useRef(false);
+  const elapsedRef = useRef(0);
   const transcriptEndRef = useRef<HTMLDivElement>(null);
 
   // Timer effect during active call
@@ -65,10 +68,15 @@ const Agent = ({
     let timer: NodeJS.Timeout;
     if (callStatus === CallStatus.ACTIVE) {
       timer = setInterval(() => {
-        setElapsedSeconds((prev) => prev + 1);
+        setElapsedSeconds((prev) => {
+          const next = prev + 1;
+          elapsedRef.current = next;
+          return next;
+        });
       }, 1000);
     } else if (callStatus === CallStatus.INACTIVE) {
       setElapsedSeconds(0);
+      elapsedRef.current = 0;
     }
     return () => clearInterval(timer);
   }, [callStatus]);
@@ -171,6 +179,7 @@ const Agent = ({
             userId: userId!,
             transcript: messages,
             feedbackId,
+            durationSeconds: elapsedRef.current,
           });
 
           if (result?.success && result?.feedbackId) {
@@ -227,18 +236,15 @@ const Agent = ({
           },
         });
       } else {
-        let formattedQuestions = "";
-        if (questions && questions.length > 0) {
-          formattedQuestions = questions
-            .map((question) => `- ${question}`)
-            .join("\n");
-        }
-
-        await vapi.start(interviewer, {
-          variableValues: {
-            questions: formattedQuestions,
-          },
+        const dynamicAssistant = createInterviewerAssistant({
+          candidateName: userName,
+          role,
+          level,
+          interviewMode,
+          questions,
         });
+
+        await vapi.start(dynamicAssistant as any);
       }
     } catch (err: unknown) {
       console.error("Failed to start Vapi call:", err);

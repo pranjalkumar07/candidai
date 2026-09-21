@@ -84,14 +84,22 @@ export default function MetricCard({
       </div>
 
       {/* Bottom Subtext / Trend */}
-      <div className="pt-2 border-t border-[rgba(110,120,180,0.12)] flex items-center justify-between text-xs">
-        {trend && (
-          <span className="font-semibold text-[#22C55E] flex items-center gap-1">
+      <div className="pt-2 border-t border-[rgba(110,120,180,0.12)] flex items-center justify-between text-xs min-h-[28px]">
+        {trend ? (
+          <span
+            className={`font-semibold flex items-center gap-1 text-[11px] ${
+              trend.startsWith("↓") || trend.includes("-")
+                ? "text-[#F5B942]"
+                : "text-[#22C55E]"
+            }`}
+          >
             {trend}
           </span>
+        ) : (
+          <span />
         )}
         {subtitle && (
-          <span className="text-[#A7B0C5] text-[11px] ml-auto">
+          <span className="text-[#A7B0C5] text-[11px] ml-auto truncate max-w-[180px]">
             {subtitle}
           </span>
         )}

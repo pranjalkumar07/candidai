@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import dayjs from "dayjs";
 import { ArrowRight, Play, CheckCircle2, Clock } from "lucide-react";
+import { formatInterviewDuration } from "@/lib/utils";
 
 interface RecentInterviewRowProps {
   id: string;
@@ -11,6 +12,8 @@ interface RecentInterviewRowProps {
   createdAt?: string;
   score?: number | null;
   feedbackId?: string | null;
+  durationSeconds?: number | null;
+  configuredDuration?: number | null;
 }
 
 export default function RecentInterviewRow({
@@ -20,6 +23,8 @@ export default function RecentInterviewRow({
   level = "Intermediate",
   createdAt,
   score,
+  durationSeconds,
+  configuredDuration,
 }: RecentInterviewRowProps) {
   const formattedDate = createdAt ? dayjs(createdAt).format("MMM D, YYYY") : "Recently";
   const isEvaluated = typeof score === "number";
@@ -101,7 +106,12 @@ export default function RecentInterviewRow({
         {/* Duration */}
         <div className="hidden md:flex items-center gap-1.5 text-xs text-[#69748D]">
           <Clock className="size-3 text-[#69748D]" />
-          <span>~15 min</span>
+          <span>
+            {formatInterviewDuration({
+              durationSeconds,
+              configuredDuration,
+            })}
+          </span>
         </div>
 
         {/* Score */}

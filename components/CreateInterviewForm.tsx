@@ -75,6 +75,7 @@ const INTERVIEW_MODES = [
 ];
 
 const QUESTION_COUNTS = [3, 5, 7, 10];
+const DURATION_OPTIONS = [15, 30, 45, 60];
 
 export default function CreateInterviewForm({
   userName,
@@ -96,6 +97,7 @@ export default function CreateInterviewForm({
   const [techInput, setTechInput] = useState("");
   const [interviewMode, setInterviewMode] = useState<"Technical" | "Behavioral" | "Mixed">(initialType);
   const [questionCount, setQuestionCount] = useState(5);
+  const [duration, setDuration] = useState(30);
   const [isGenerating, setIsGenerating] = useState(false);
   const [useVoiceMode, setUseVoiceMode] = useState(false);
 
@@ -137,7 +139,7 @@ export default function CreateInterviewForm({
           techstack: techStack.join(", "),
           type: interviewMode,
           amount: questionCount,
-          userid: userId,
+          duration,
         }),
         signal: controller.signal,
       });
@@ -448,9 +450,42 @@ export default function CreateInterviewForm({
                         : "bg-[#0B1224] border-[rgba(110,120,180,0.22)] text-[#8F9BB3] hover:border-[rgba(110,120,180,0.4)] hover:text-[#F5F7FF]"
                     }`}
                   >
-                    <span>{count}</span>
+                    <span>{count} Questions</span>
                     <span className="block text-[10px] font-normal opacity-80 mt-0.5">
-                      ~{count * 3} min
+                      {count <= 3 ? "Rapid Check" : count <= 5 ? "Standard" : count <= 7 ? "In-depth" : "Comprehensive"}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 6. TARGET SESSION DURATION */}
+            <div className="surface-glass p-5 sm:p-6 flex flex-col gap-4">
+              <div className="flex items-center gap-2.5">
+                <span className="size-6 rounded-md bg-[#6D4AFF]/15 border border-[#6D4AFF]/30 text-[11px] font-bold text-[#845CFF] flex items-center justify-center">
+                  6
+                </span>
+                <div>
+                  <h3 className="text-sm font-bold text-[#F5F7FF]">Target Session Duration</h3>
+                  <p className="text-xs text-[#69748D]">Configured time allocation for this interview</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-2.5">
+                {DURATION_OPTIONS.map((mins) => (
+                  <button
+                    key={mins}
+                    type="button"
+                    onClick={() => setDuration(mins)}
+                    className={`py-2.5 px-3 rounded-lg text-xs font-bold border text-center transition-all cursor-pointer ${
+                      duration === mins
+                        ? "bg-gradient-to-r from-[#6D4AFF] to-[#4F46E5] text-white border-[#6D4AFF] shadow-[0_0_14px_rgba(109,74,255,0.35)]"
+                        : "bg-[#0B1224] border-[rgba(110,120,180,0.22)] text-[#8F9BB3] hover:border-[rgba(110,120,180,0.4)] hover:text-[#F5F7FF]"
+                    }`}
+                  >
+                    <span>{mins} min</span>
+                    <span className="block text-[10px] font-normal opacity-80 mt-0.5">
+                      {mins === 15 ? "Screening" : mins === 30 ? "Standard" : mins === 45 ? "Deep Dive" : "Full Round"}
                     </span>
                   </button>
                 ))}
@@ -503,9 +538,9 @@ export default function CreateInterviewForm({
                 <div className="flex justify-between items-center py-1.5 border-b border-[rgba(110,120,180,0.12)]">
                   <span className="text-[#8F9BB3] flex items-center gap-1.5">
                     <Clock className="size-3 text-[#69748D]" />
-                    Duration
+                    Target Duration
                   </span>
-                  <span className="font-semibold text-[#F5F7FF]">~{estimatedMinutes} min</span>
+                  <span className="font-semibold text-[#F5F7FF]">{duration} min</span>
                 </div>
 
                 <div className="pt-2">

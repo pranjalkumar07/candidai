@@ -1,6 +1,20 @@
+interface QuestionEvaluation {
+  question: string;
+  candidateAnswer: string;
+  score: number;
+  whatWasCorrect: string;
+  whatWasMissing: string;
+  whatWasIncorrect: string;
+  whyItMatters: string;
+  howToImprove: string;
+  idealAnswer: string;
+  followUpQuestion: string;
+}
+
 interface Feedback {
   id: string;
   interviewId: string;
+  userId: string;
   totalScore: number;
   categoryScores: Array<{
     name: string;
@@ -10,6 +24,19 @@ interface Feedback {
   strengths: string[];
   areasForImprovement: string[];
   finalAssessment: string;
+  hiringSummary?: string;
+  criticalWeaknesses?: string[];
+  technicalGaps?: string[];
+  communicationGaps?: string[];
+  struggledQuestions?: string[];
+  strongQuestions?: string[];
+  improvementAreas?: string[];
+  recommendedTopics?: string[];
+  difficultyAssessment?: string;
+  nextInterviewRecommendation?: string;
+  questionEvaluations?: QuestionEvaluation[];
+  durationSeconds?: number;
+  completedAt?: string;
   createdAt: string;
 }
 
@@ -24,6 +51,9 @@ interface Interview {
   type: string;
   finalized: boolean;
   coverImage?: string;
+  duration?: number; // Configured duration in minutes
+  durationSeconds?: number; // Actual recorded duration in seconds
+  completedAt?: string;
 }
 
 interface CreateFeedbackParams {
@@ -31,6 +61,7 @@ interface CreateFeedbackParams {
   userId: string;
   transcript: { role: string; content: string }[];
   feedbackId?: string;
+  durationSeconds?: number;
 }
 
 interface User {
@@ -47,6 +78,8 @@ interface InterviewCardProps {
   techstack: string[];
   createdAt?: string;
   coverImage?: string;
+  duration?: number;
+  durationSeconds?: number;
 }
 
 interface AgentProps {
@@ -56,6 +89,10 @@ interface AgentProps {
   feedbackId?: string;
   type: "generate" | "interview";
   questions?: string[];
+  role?: string;
+  level?: string;
+  interviewMode?: string;
+  duration?: number;
 }
 
 interface RouteParams {
